@@ -136,7 +136,7 @@ const SushiUnlock = ({ isOpen, onClose }) => {
   const progressPercentage = Math.min(
     ((likesReceived - currentSushi.requiredLikes) /
       (nextSushi.requiredLikes - currentSushi.requiredLikes)) *
-      100,
+    100,
     100
   );
 
@@ -279,7 +279,7 @@ const innerBoxStyle = {
   backgroundColor: "#B2975C",
   textAlign: "center",
   color: "#5D4A37",
-  fontSize: "2.3vh",
+  fontSize: "calc(3 * var(--custom-vh))",
   fontWeight: "bold",
   padding: "0.5vh",
   boxSizing: "border-box",
@@ -359,7 +359,7 @@ const leftTextStyle = {
   left: "calc(3 * var(--custom-vh))",
   margin: 0,
   textAlign: "center",
-  fontSize: "2vh",
+  fontSize: "calc(2.5 * var(--custom-vh))",
   color: "#FFFFFF",
 };
 
@@ -392,7 +392,7 @@ const rightTextStyle = {
   top: "5.5vh",
   margin: 0,
   textAlign: "center",
-  fontSize: "2vh",
+  fontSize: "calc(2.5 * var(--custom-vh))",
   color: "#5D4A37",
 };
 
@@ -459,7 +459,7 @@ const sushiNameStyle = {
   height: "fit-content",
   color: "#5D4A37",
   textAlign: "center",
-  fontSize: "0.8vh",
+  fontSize: "calc(0.8 * var(--custom-vh))",
 };
 
 const lockedStyle = {
@@ -488,15 +488,15 @@ const requiredLikesStyle = {
   width: "100%",
   height: "100%",
   top: "45%",
-  fontSize: "0.65vh",
+  fontSize: "calc(0.7 * var(--custom-vh))",
   textAlign: "center",
   wordBreak: "keep-all",
   color: "#5D4A37",
   textShadow: `
-    -0.05vh -0.05vh 0 #fff,
-    0.05vh -0.05vh 0 #fff,
-    -0.05vh 0.05vh 0 #fff,
-    0.05vh 0.05vh 0 #fff
+    calc(-0.05 * var(--custom-vh)) calc(-0.05 * var(--custom-vh)) 0 #fff,
+    calc(0.05 * var(--custom-vh)) calc(-0.05 * var(--custom-vh)) 0 #fff,
+    calc(-0.05 * var(--custom-vh)) calc(0.05 * var(--custom-vh)) 0 #fff,
+    calc(0.05 * var(--custom-vh)) calc(0.05 * var(--custom-vh)) 0 #fff
   `,
   zIndex: "1",
 };
@@ -508,7 +508,7 @@ const sushiUnlockNameStyle = {
   height: "fit-content",
   color: "#5D4A37",
   textAlign: "center",
-  fontSize: "0.8vh",
+  fontSize: "calc(0.8 * var(--custom-vh))",
 };
 
 export default SushiUnlock;

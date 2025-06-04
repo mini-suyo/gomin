@@ -1,0 +1,28 @@
+server:
+  shutdown: graceful
+
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+  profiles:
+    include: secret
+    active: prod
+
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true  # 페이징 0부터가 아닌 1부터
+
+  jpa:
+    open-in-view: false
+
+management:
+  endpoints:
+    web:
+      base-path: /api  # /actuator 대신 /api를 base path로 사용
+      exposure:
+        include: health  # health endpoint만 노출
+  endpoint:
+    health:
+      show-details: never  # 상세 정보는 숨김

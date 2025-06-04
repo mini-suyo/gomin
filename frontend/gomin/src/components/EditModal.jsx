@@ -3,11 +3,13 @@ import { useDispatch } from "react-redux";
 import { updateNickname, deleteAccount } from "../store/slices/authSlice";
 import { clearMemberData } from "../store/slices/memberSlice";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "../hooks/useNotification"; // 푸시 알림 훅 추가
 import "../styles/font.css";
 
 const EditModal = ({ isOpen, onClose, onConfirm }) => {
   const dispatch = useDispatch();
   const currentNickname = localStorage.getItem("userNickname");
+  const { requestPermission } = useNotification(); // 푸시 알림 훅 사용
 
   const [nickname, setNickname] = useState("");
   const [error, setError] = useState("");
@@ -79,6 +81,18 @@ const EditModal = ({ isOpen, onClose, onConfirm }) => {
     }
   };
 
+  // 푸시 알림 권한 요청 및 FCM 토큰 처리
+  const handlePushNotification = async () => {
+    const result = await requestPermission();
+    if (result === "granted") {
+      alert("푸시 알림을 보내드릴게요!");
+    } else if (result === "denied") {
+      alert("푸시 알림이 차단되어있습니다. 브라우저 설정에서 변경 가능합니다.");
+    } else {
+      console.log("사용자가 결정을 보류함:", result);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -97,7 +111,21 @@ const EditModal = ({ isOpen, onClose, onConfirm }) => {
         }}
       >
         <div style={styles.innerBox}>
+          {/* 왼쪽 상단에 종모양 아이콘 추가 */}
+          <button
+            onClick={handlePushNotification}
+            style={{
+              ...styles.pushNotificationIcon,
+              position: "absolute",
+              top: "1vh",
+              left: "1vh",
+            }}
+          >
+            🔔
+          </button>
+
           <p style={styles.titleStyle}>당신을 어떻게 부르면 될까요?</p>
+
           <div style={styles.inputContainer}>
             <input
               type="text"
@@ -150,6 +178,7 @@ const EditModal = ({ isOpen, onClose, onConfirm }) => {
             </button>
           </div>
 
+          {/* 하단 "회원탈퇴/로그아웃" 버튼 원래 위치 유지 */}
           <div style={styles.bottomButtonContainer}>
             <button
               onClick={handleDeleteAccount}
@@ -247,7 +276,7 @@ const styles = {
     left: "10px",
     right: "10px",
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: "space-between", // 좌우로 분리
     fontSize: "1.4vh",
   },
   bottomButtonStyle: {
@@ -257,6 +286,15 @@ const styles = {
     cursor: "pointer",
     textDecoration: "underline",
     fontFamily: "Ownglyph, Ownglyph",
+  },
+  pushNotificationIcon: {
+    background: "none",
+    border: "none",
+    color: "#888",
+    cursor: "pointer",
+    fontSize: "1.5vh", // 아이콘 크기 조정
+    lineHeight: "1.5vh",
+    padding: "0",
   },
   errorStyle: {
     color: "#dc3545",

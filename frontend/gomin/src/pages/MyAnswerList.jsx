@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchMyAnswers } from "../store/slices/answerSlice";
 import SushiAnswerCard from "../components/SushiAnswerCard";
 import { useTrail, animated } from "@react-spring/web";
+import directionIcon from "../assets/direction.svg";
 
 const MyAnswerList = () => {
   const dispatch = useDispatch();
@@ -137,7 +138,15 @@ const MyAnswerList = () => {
         )}
       </div>
       <button onClick={scrollToTop} style={styles.scrollTopButton}>
-        ︽
+        <img
+          src={directionIcon}
+          alt="위로 가기"
+          style={{
+            width: "calc(3 * var(--custom-vh))",
+            height: "calc(3 * var(--custom-vh))",
+            filter: "brightness(0) invert(1)",
+          }}
+        />
       </button>
     </div>
   );
@@ -224,24 +233,30 @@ const styles = {
   scrollTopButton: {
     position: "fixed",
     bottom: "5vh",
-    right: "5vh",
-    width: "4vh",
-    height: "4vh",
-    backgroundColor: "rgba(178, 151, 92, 0.6)",
-    border: "none",
-    borderRadius: "50%",
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: "calc(6 * var(--custom-vh))",
+    height: "calc(6 * var(--custom-vh))",
+    backgroundColor: "rgba(178, 151, 92, 0.2)",
+    border: "calc(0.3 * var(--custom-vh)) solid rgba(139, 107, 62, 0.4)",
+    borderRadius: "calc(3 * var(--custom-vh))",
     color: "#FFFEFA",
-    fontSize: "1.8vh",
+    fontSize: "calc(2.5 * var(--custom-vh))",
     cursor: "pointer",
     zIndex: 1000,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backdropFilter: "blur(2px)",
-    transition: "opacity 0.3s ease",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+    backdropFilter: "blur(4px)",
+    transition: "all 0.3s ease",
+    boxShadow: "0 calc(0.4 * var(--custom-vh)) calc(0.8 * var(--custom-vh)) rgba(0,0,0,0.15)",
     "&:hover": {
       backgroundColor: "rgba(178, 151, 92, 0.8)",
+      transform: "translateX(-50%) translateY(-2px)",
+      boxShadow: "0 calc(0.6 * var(--custom-vh)) calc(1 * var(--custom-vh)) rgba(0,0,0,0.2)",
+    },
+    "&:active": {
+      transform: "translateX(-50%) translateY(0)",
     }
   },
 };

@@ -14,13 +14,13 @@ window.Kakao.init(import.meta.env.VITE_KAKAO_JAVASCRIPT_ID); // .env에 설정�
 document.addEventListener("contextmenu", (e) => e.preventDefault());
 
 // Service Worker 업데이트 코드 추가
-// if ("serviceWorker" in navigator) {
-//   navigator.serviceWorker.getRegistrations().then(function (registrations) {
-//     for (let registration of registrations) {
-//       registration.update();
-//     }
-//   });
-// }
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function (registrations) {
+    for (let registration of registrations) {
+      registration.update();
+    }
+  });
+}
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

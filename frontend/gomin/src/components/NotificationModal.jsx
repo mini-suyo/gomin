@@ -11,6 +11,7 @@ import {
 import EXP from "../assets/Notification/EXP.webp"; // 유통기한 마감
 import ANS_END from "../assets/Notification/ANS_END.webp"; // 답변 마감
 import ANS_LIKE from "../assets/Notification/ANS_LIKE.webp"; // 답변 좋아요
+import directionIcon from "../assets/direction.svg";  // 상단에 추가
 
 const NotificationModal = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
@@ -60,7 +61,7 @@ const NotificationModal = ({ isOpen, onClose }) => {
 
   const truncateTitle = (title) => {
     if (!title) return "";
-    return title.length > 15 ? `[${title.slice(0, 15)}...]` : `제목: ${title}`;
+    return title.length > 15 ? `[${title.slice(0, 30)}...]` : `[${title}]`;
   };
 
   const scrollToTop = () => {
@@ -133,7 +134,15 @@ const NotificationModal = ({ isOpen, onClose }) => {
                 ))}
               </ul>
               <button onClick={scrollToTop} style={styles.scrollTopButton}>
-                ︽
+                <img
+                  src={directionIcon}
+                  alt="위로 가기"
+                  style={{
+                    width: "2vh",
+                    height: "2vh",
+                    filter: "brightness(0) invert(1)",
+                  }}
+                />
               </button>
             </>
           ) : (
@@ -358,16 +367,15 @@ const styles = {
     height: "4vh",
     margin: "1vh auto",
     marginTop: "2vh",
-    display: "block",
+    display: "flex",           // block에서 flex로 변경
+    alignItems: "center",      // 추가
+    justifyContent: "center",    // 추가
     backgroundColor: "#B2975C",
     border: "none",
     borderRadius: "50%",
     color: "#FFFEFA",
-    fontSize: "1.8vh",         // 캐럿 크기 조정
     cursor: "pointer",
     flexShrink: 0,
-    lineHeight: "3vh",         // 수직 정렬 조정
-    fontFamily: "monospace",   // 캐럿 모양 개선을 위한 폰트 변경
   },
 };
 

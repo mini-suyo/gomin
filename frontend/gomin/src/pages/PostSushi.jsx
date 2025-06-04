@@ -1010,7 +1010,7 @@ const buttonContainer = {
   width: "100%",
   marginTop: "3vh",
   marginBottom: "1vh",
-  gap: "3vh",
+  gap: "2vh",
 };
 
 const iconButtonStyle = {

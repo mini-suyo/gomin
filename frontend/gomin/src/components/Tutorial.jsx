@@ -7,7 +7,6 @@ import t0 from "../assets/tuto/0.webp";
 import t01 from "../assets/tuto/01.webp";
 import t2 from "../assets/tuto/2.webp";
 import t3 from "../assets/tuto/03.webp";
-// import t6 from "../assets/tuto/6.webp";
 import t7 from "../assets/tuto/7.webp";
 import t8 from "../assets/tuto/8.webp";
 import t9 from "../assets/tuto/9.webp";
@@ -74,12 +73,26 @@ const Tutorial = ({ onClose, showFullTutorial = true }) => {
         <div
           style={{
             position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            top: "40%",
+            left: "50%",
             zIndex: 8,
             backgroundColor: "transparent",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
+
+      {(showDialog || showTutorial) && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "transparent",
+            zIndex: 7,
+            pointerEvents: "auto",
           }}
           onClick={(e) => e.stopPropagation()}
         />
@@ -89,9 +102,9 @@ const Tutorial = ({ onClose, showFullTutorial = true }) => {
         <div
           style={{
             position: "absolute",
-            top: "25vh",
-            left: "28vh",
-            width: "25vh",
+            top: "calc( 25 * var(--custom-vh))",
+            left: "calc( 28 * var(--custom-vh))",
+            width: "calc( 25 * var(--custom-vh))",
           }}
         >
           <Dialog
@@ -155,7 +168,7 @@ const styles = {
   },
   tutorialContent: {
     borderRadius: "12px",
-    width: "45vh",
+    width: "calc( 45 * var(--custom-vh))",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",

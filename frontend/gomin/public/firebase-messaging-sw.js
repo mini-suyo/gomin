@@ -5,13 +5,17 @@ importScripts(
   "https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"
 );
 
-// Firebase 초기화
+/**
+ * https://github.com/CodeSoom/ConStu/issues/133
+ * public디렉토리는 env로 환경변수 처리가 불가하며
+ * firebase의 클라이언트단 api key는 공개되어도 무방함
+ */
 firebase.initializeApp({
   authDomain: "gomination-670fd.firebaseapp.com",
   projectId: "gomination-670fd",
   storageBucket: "gomination-670fd.firebasestorage.app",
   messagingSenderId: "160751898514",
-  appId: "1:160751898514:web:49e535605e12e559a0fb4b",
+  appId: "1:160751898514:web:49e535605e12e559a0fb4b"
 });
 
 const messaging = firebase.messaging();

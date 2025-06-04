@@ -4,12 +4,9 @@ import { fetchUnreadExists } from "../store/slices/notificationSlice";
 import { countLike } from "../store/slices/memberSlice";
 import {
   fetchSushiByToken,
-  increaseRailSpeed,
-  decreaseRailSpeed,
+  fetchSushiDetail,
 } from "../store/slices/sushiSlice";
-import { fetchSushiDetail } from "../store/slices/sushiSlice";
 import { useLocation } from "react-router-dom";
-
 import Rail from "../components/Rail";
 import PostSushiBell from "../components/PostSushiBell";
 import NotificationBell from "../components/NotificationBell";
@@ -20,17 +17,12 @@ import SushiUnlockBar from "../components/SushiUnlockBar";
 import BgmContext from "../context/BgmProvider";
 import CommonAlertModal from "../components/CommonAlertModal";
 import PushAgreeModal from "../components/webpush/PushAgreeModal";
-
 import { useSpring, animated } from "@react-spring/web";
-
-//이미지 파일
 import bgImg from "../assets/home/back.webp";
 import deskImg from "../assets/home/rail.webp";
 import masterImg from "../assets/home/master.webp";
 import SushiView from "./SushiView";
-
 import plate from "../assets/sounds/plate.mp3";
-
 import Tutorial from "../components/Tutorial";
 import { useSSE } from "../hooks/useSSE";
 import SSEIndicator from "../components/SSEIndicator";
@@ -43,7 +35,6 @@ const Home = () => {
   const [showLoadingScreen, setShowLoadingScreen] = useState(true);
   const [hasRefreshed, setHasRefreshed] = useState(false);
   const [token, setToken] = useState(null);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isSushiUnlockOpen, setIsSushiUnlockOpen] = useState(false);
@@ -51,18 +42,19 @@ const Home = () => {
   const [isSushiViewOpen, setIsSushiViewOpen] = useState(false);
   const [selectedSushiData, setSelectedSushiData] = useState(null);
   const [startTutorial, setStartTutorial] = useState(false);
-  const [showAnswerSubmitModal, setShowAnswerSubmitModal] = useState(false);
-  const [isOwnSushi, setIsOwnSushi] = useState(false);
-
+  const [submitResult, setSubmitResult] = useState(null); // 제출 결과 상태 추가
   const [showPushAgreeModal, setShowPushAgreeModal] = useState(false);
-
   const audioRef = useRef(null);
   const { isMuted } = useContext(BgmContext);
 
-  // // ✅ `handleSetIsNew` 함수 정의
-  // const handleSetIsNew = (value) => {
-  //   dispatch(setIsNew(value));
-  // };
+  const hasUnread = useSelector(
+    (state) => state.notification.hasUnread ?? false
+  );
+  const [imagesLoaded, setImagesLoaded] = useState({
+    bg: false,
+    desk: false,
+    master: false,
+  });
 
   const handleSushiClick = async (sushiData) => {
     try {
@@ -77,106 +69,53 @@ const Home = () => {
   };
 
   const handlePostSushiComplete = () => {
-    // 알림 권한이 'default' 상태일 때만 모달 표시
     if (Notification.permission === "default") {
       setShowPushAgreeModal(true);
     }
   };
 
-  const [imagesLoaded, setImagesLoaded] = useState({
-    bg: false,
-    desk: false,
-    master: false,
-  });
-
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
-
-  const openNotification = () => setIsNotificationOpen(true);
-  const closeNotification = () => setIsNotificationOpen(false);
-
-  const openPostSushi = () => setIsPostSushiOpen(true);
-  const closePostSushi = () => setIsPostSushiOpen(false);
-
-  const openSushiUnlock = () => setIsSushiUnlockOpen(true);
-  const closeSushiUnlock = () => setIsSushiUnlockOpen(false);
-
-  const hasUnread = useSelector(
-    (state) => state.notification.hasUnread ?? false
-  );
-  const loading = useSelector(
-    (state) => state.notification.status === "loading"
-  );
-
-  const handleTutorialClose = () => {
-    setStartTutorial(false);
-  };
-
-  const restartTutorial = () => {
-    setStartTutorial(true);
-  };
-
-  const handleAnswerSubmit = (isOwn = false) => {
-    setIsOwnSushi(isOwn);
-    setShowAnswerSubmitModal(true);
-
-    // 자신의 초밥에 답변한 게 아닐 때만 알림 권한 체크
-    if (!isOwn && Notification.permission === "default") {
+  const handleSubmitResult = (result) => {
+    setSubmitResult(result);
+    if (
+      result.status === "success" &&
+      !result.isWebView &&
+      Notification.permission === "default"
+    ) {
       setShowPushAgreeModal(true);
     }
   };
 
-  const [alertModal, setAlertModal] = useState({
-    isOpen: false,
-    message: "",
-  });
-
   const showAlert = (message) => {
-    setAlertModal({
-      isOpen: true,
-      message,
-    });
+    setSubmitResult({ status: "error", message });
   };
 
   useEffect(() => {
     if (isSushiViewOpen && selectedSushiData?.isClosed) {
       showAlert("이미 마감된 초밥이에요!");
-      setIsSushiViewOpen(false); // 모달 열리지 않도록 막기
+      setIsSushiViewOpen(false);
     }
   }, [isSushiViewOpen, selectedSushiData]);
 
-  // useSSE();
-  const isSSEConnected = useSSE();
-
   useEffect(() => {
-    // 현재 URL 경로에서 '/share/' 뒤의 값을 추출
     const pathParts = location.pathname.split("/");
-
-    // URL이 '/share/{token}' 형식인지 확인
     if (pathParts[1] === "share" && pathParts.length > 2) {
-      const tokenFromUrl = pathParts[2]; // 'share' 뒤에 오는 값이 토큰
-      setToken(tokenFromUrl);
+      setToken(pathParts[2]);
     }
   }, [location]);
 
-  // 토큰을 사용하여 초밥 데이터 불러오기
   useEffect(() => {
     if (token) {
       dispatch(fetchSushiByToken(token))
-        .unwrap() // unwrap 추가
+        .unwrap()
         .then((response) => {
           if (response.data) {
             setSelectedSushiData(response.data);
-            setTimeout(() => {
-              setIsSushiViewOpen(true);
-            }, 2000);
+            setTimeout(() => setIsSushiViewOpen(true), 2000);
           }
         })
         .catch((error) => {
-          console.error(error);
-          if (error.error?.code === "R006") {
+          if (error.error?.code === "R006")
             showAlert("이미 답변한 초밥이다냥!");
-          }
         });
     }
   }, [token, dispatch]);
@@ -187,19 +126,16 @@ const Home = () => {
   }, [dispatch]);
 
   const handleImageLoad = (image) => {
-    setImagesLoaded((prevState) => ({ ...prevState, [image]: true }));
+    setImagesLoaded((prev) => ({ ...prev, [image]: true }));
   };
 
-  // 배경 이미지 로드 완료 처리
   useEffect(() => {
     const bgImage = new Image();
     bgImage.src = bgImg;
     bgImage.onload = () => handleImageLoad("bg");
-
     const masterImage = new Image();
     masterImage.src = masterImg;
     masterImage.onload = () => handleImageLoad("master");
-
     const deskImage = new Image();
     deskImage.src = deskImg;
     deskImage.onload = () => handleImageLoad("desk");
@@ -207,35 +143,23 @@ const Home = () => {
 
   const allImagesLoaded = Object.values(imagesLoaded).every((loaded) => loaded);
 
-  // 홈화면 새로고침 처리
   useEffect(() => {
     const hasVisited = sessionStorage.getItem("hasVisitedHome");
-
     if (!hasVisited && !hasRefreshed) {
-      //방문 기록 저장
       sessionStorage.setItem("hasVisitedHome", "true");
-      setTimeout(() => {
-        setHasRefreshed(true);
-        // window.location.reload();
-      }, 100);
+      setTimeout(() => setHasRefreshed(true), 100);
     } else {
-      // fade out
-      const timer = setTimeout(() => {
-        setShowLoadingScreen(false);
-      }, 500);
-
+      const timer = setTimeout(() => setShowLoadingScreen(false), 500);
       return () => clearTimeout(timer);
     }
   }, [hasRefreshed]);
 
-  // 초밥 모달이 열릴 때 소리 재생
   useEffect(() => {
     if (isSushiViewOpen && audioRef.current) {
-      // 음소거 상태에 따라 볼륨 설정
       audioRef.current.volume = isMuted ? 0 : 0.5;
       audioRef.current.play();
     }
-  }, [isSushiViewOpen]);
+  }, [isSushiViewOpen, isMuted]);
 
   const bgSpring = useSpring({
     opacity: allImagesLoaded ? 1 : 0,
@@ -243,27 +167,26 @@ const Home = () => {
     config: { tension: 170, friction: 26 },
     delay: 1000,
   });
-
   const masterSpring = useSpring({
     opacity: allImagesLoaded ? 1 : 0,
     transform: allImagesLoaded ? "scale(1.2)" : "scale(0.8)",
     config: { tension: 170, friction: 26 },
     delay: 1500,
   });
-
   const deskSpring = useSpring({
     opacity: allImagesLoaded ? 1 : 0,
     transform: allImagesLoaded ? "translateX(0)" : "translateX(-50%)",
     config: { tension: 170, friction: 26 },
     delay: 300,
   });
-
   const bellSpring = useSpring({
     opacity: allImagesLoaded ? 1 : 0,
     transform: allImagesLoaded ? "translateY(0)" : "translateY(-50%)",
     config: { tension: 300, friction: 10 },
     delay: 1700,
   });
+
+  const isSSEConnected = useSSE();
 
   return (
     <>
@@ -282,6 +205,7 @@ const Home = () => {
           {/* SSE 연결 상태 표시 */}
           <SSEIndicator isConnected={isSSEConnected} />
         </animated.div>
+        {/* 고양이마스터 */}
         <animated.div
           style={{
             ...styles.backgroundLayer,
@@ -292,7 +216,6 @@ const Home = () => {
           }}
           onLoad={() => handleImageLoad("bg")}
         ></animated.div>
-        {/* 고양이마스터 */}
         <animated.div
           style={{
             ...styles.backgroundLayer,
@@ -304,7 +227,6 @@ const Home = () => {
           onLoad={() => handleImageLoad("master")}
         ></animated.div>
         <MasterCat />
-
         <animated.div
           style={{
             ...styles.backgroundLayer,
@@ -314,12 +236,14 @@ const Home = () => {
           }}
         >
           {/* 알림 : 새로운 알림이 있을 때, 없을 떄 */}
-          <NotificationBell onClick={openNotification} hasUnread={hasUnread} />
+          <NotificationBell
+            onClick={() => setIsNotificationOpen(true)}
+            hasUnread={hasUnread}
+          />
         </animated.div>
-
         {/* 튜토리얼 버튼 */}
         <div style={styles.buttonContainer}>
-          <button style={styles.button} onClick={restartTutorial}>
+          <button style={styles.button} onClick={() => setStartTutorial(true)}>
             ?
           </button>
         </div>
@@ -348,90 +272,67 @@ const Home = () => {
           <div style={styles.rail}>
             <Rail onSushiClick={handleSushiClick} />
           </div>
-
           {/* 주문벨 */}
           <div style={styles.bell}>
-            <PostSushiBell onClick={openPostSushi} />
+            <PostSushiBell onClick={() => setIsPostSushiOpen(true)} />
           </div>
-          {/* 속도 조절 버튼 */}
-          {/* <div style={styles.speedControls}>
-            <button
-              onClick={() => dispatch(increaseRailSpeed())}
-              style={styles.speedButton}
-            >
-              +
-            </button>
-            <button
-              onClick={() => dispatch(decreaseRailSpeed())}
-              style={styles.speedButton}
-            >
-              -
-            </button>
-          </div> */}
-          {/* 해금요소 */}
           <div style={styles.unlock}>
-            <SushiUnlockBar onClick={openSushiUnlock} />
+            <SushiUnlockBar onClick={() => setIsSushiUnlockOpen(true)} />
           </div>
         </animated.div>
-
-        {/* 모달 */}
-        <div>
-          <div style={{ position: "absolute", zIndex: "10" }}>
-            <audio ref={audioRef} src={plate} />
-            {selectedSushiData &&
-              isSushiViewOpen &&
-              !selectedSushiData.isClosed && (
-                <SushiView
-                  isOpen={isSushiViewOpen}
-                  onClose={() => setIsSushiViewOpen(false)}
-                  onAnswerSubmit={handleAnswerSubmit}
-                  sushiId={selectedSushiData.sushiId}
-                  category={selectedSushiData.category}
-                  sushiType={selectedSushiData.sushiType}
-                  remainingAnswers={selectedSushiData.remainingAnswers}
-                  expirationTime={selectedSushiData.expirationTime}
-                />
-              )}
-            <AnswerSubmitCheckModal
-              isOpen={showAnswerSubmitModal}
-              onClose={() => setShowAnswerSubmitModal(false)}
-              isOwnSushi={isOwnSushi}
-            />
-
-            <SushiUnlock
-              isOpen={isSushiUnlockOpen}
-              onClose={closeSushiUnlock}
-            />
-            {isPostSushiOpen && (
-              <PostSushi
-                onClose={closePostSushi}
-                onComplete={handlePostSushiComplete}
+        <div style={{ position: "absolute", zIndex: "10" }}>
+          <audio ref={audioRef} src={plate} />
+          {selectedSushiData &&
+            isSushiViewOpen &&
+            !selectedSushiData.isClosed && (
+              <SushiView
+                isOpen={isSushiViewOpen}
+                onClose={() => setIsSushiViewOpen(false)}
+                onSubmitResult={handleSubmitResult}
+                sushiId={selectedSushiData.sushiId}
+                category={selectedSushiData.category}
               />
             )}
-            <NotificationModal
-              isOpen={isNotificationOpen}
-              onClose={closeNotification}
+          <AnswerSubmitCheckModal
+            isOpen={
+              submitResult?.status === "success" ||
+              submitResult?.status === "R005"
+            }
+            onClose={() => setSubmitResult(null)}
+            isOwnSushi={submitResult?.status === "R005"}
+          />
+          <CommonAlertModal
+            isOpen={submitResult?.status === "error"}
+            onClose={() => setSubmitResult(null)}
+            message={submitResult?.message || "답변 제출에 실패했습니다."}
+          />
+          <SushiUnlock
+            isOpen={isSushiUnlockOpen}
+            onClose={() => setIsSushiUnlockOpen(false)}
+          />
+          {isPostSushiOpen && (
+            <PostSushi
+              onClose={() => setIsPostSushiOpen(false)}
+              onComplete={handlePostSushiComplete}
             />
-
-            {showPushAgreeModal && (
-              <PushAgreeModal
-                isOpen={showPushAgreeModal}
-                onClose={() => setShowPushAgreeModal(false)}
-              />
-            )}
-
-            <CommonAlertModal
-              isOpen={alertModal.isOpen}
-              onClose={() => setAlertModal({ isOpen: false, message: "" })}
-              message={alertModal.message}
+          )}
+          <NotificationModal
+            isOpen={isNotificationOpen}
+            onClose={() => setIsNotificationOpen(false)}
+          />
+          {showPushAgreeModal && (
+            <PushAgreeModal
+              isOpen={showPushAgreeModal}
+              onClose={() => setShowPushAgreeModal(false)}
             />
-          </div>
+          )}
         </div>
       </div>
     </>
   );
 };
 
+// styles는 그대로 유지
 const styles = {
   backgroundContainer: {
     position: "relative",

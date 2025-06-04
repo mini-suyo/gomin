@@ -2,6 +2,21 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-0BBB9S7JHZ"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-0BBB9S7JHZ");
+    </script>
+
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
@@ -15,10 +30,7 @@
       property="og:image"
       content="https://res.cloudinary.com/gominsushi/image/upload/v1739762080/%EA%B3%B5%EC%9C%A0_nssh19.png"
     />
-    <meta
-      property="og:description"
-      content="내 고민 좀 들어줄래..? 내 고민 초밥을 먹어줘🍽️"
-    />
+    <meta property="og:description" content="내 고민 초밥을 먹어줘🍽️" />
 
     <!-- 캐시 버스팅을 위한 메타 태그 추가 -->
     <meta
@@ -48,20 +60,51 @@
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
     <script type="module" src="/src/main.jsx"></script>
 
-    <!-- 서비스 워커 등록 스크립트 추가 -->
     <script>
+      function detectBrowserEnvironment() {
+        const ua = navigator.userAgent;
+        const isWKWebView = window.webkit && window.webkit.messageHandlers;
+        const results = {
+          isIOS: /iPad|iPhone|iPod/.test(ua) && !window.MSStream,
+          isSafari: /^((?!chrome|android).)*safari/i.test(ua),
+          isKakaoTalk: /KAKAOTALK/i.test(ua),
+          isNaver: /NAVER\(inapp/i.test(ua),
+          isInstagram: /Instagram/i.test(ua),
+          isFacebook: /FBAN|FBAV/i.test(ua),
+          isLine: /Line/i.test(ua),
+          isStandalone: window.navigator.standalone === true,
+          isWKWebView: isWKWebView,
+          isIOSInAppBrowser: false,
+        };
+        if (results.isIOS) {
+          results.isIOSInAppBrowser =
+            results.isWKWebView ||
+            results.isKakaoTalk ||
+            results.isNaver ||
+            results.isInstagram ||
+            results.isFacebook ||
+            results.isLine ||
+            (!results.isSafari && !results.isStandalone);
+        }
+        return results.isIOSInAppBrowser;
+      }
+
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
-          navigator.serviceWorker
-            .register("/firebase-messaging-sw.js", {
-              scope: "/",
-            })
-            .then((registration) => {
-              // console.log("서비스 워커가 등록되었습니다:", registration);
-            })
-            .catch((err) => {
-              console.error("서비스 워커 등록 실패:", err);
-            });
+          if (!detectBrowserEnvironment()) {
+            navigator.serviceWorker
+              .register("/firebase-messaging-sw.js", { scope: "/" })
+              .then((registration) => {
+                // console.log("서비스 워커가 등록되었습니다:", registration);
+              })
+              .catch((err) => {
+                console.error("서비스 워커 등록 실패:", err);
+              });
+          } else {
+            console.log(
+              "iOS 인앱 브라우저에서는 서비스 워커를 등록하지 않습니다."
+            );
+          }
         });
       }
     </script>

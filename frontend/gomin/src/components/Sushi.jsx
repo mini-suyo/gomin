@@ -24,7 +24,6 @@ import violetImg from "../assets/plates/violet.webp";
 import grayImg from "../assets/plates/gray.webp";
 import whiteImg from "../assets/plates/white.webp";
 
-
 const Sushi = ({
   sushiId,
   category,
@@ -33,14 +32,13 @@ const Sushi = ({
   expirationTime,
   onSushiClick,
 }) => {
-
   // 고민 카테고리 매핑
   const categories = {
     1: "사랑",
-    2: "우정",
-    3: "진로",
-    4: "건강",
-    5: "가족",
+    2: "금전",
+    3: "건강",
+    4: "진로",
+    5: "자아",
     6: "기타",
   };
 
@@ -48,8 +46,8 @@ const Sushi = ({
   const plates = {
     1: redImg,
     2: yellowImg,
-    3: blueImg,
-    4: greenImg,
+    3: greenImg,
+    4: blueImg,
     5: violetImg,
     6: grayImg,
   };
