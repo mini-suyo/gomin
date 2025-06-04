@@ -11,12 +11,11 @@ importScripts(
  * firebase의 클라이언트단 api key는 공개되어도 무방함
  */
 firebase.initializeApp({
-  apiKey: "AIzaSyBkpeAuPG6D4TyeY6QCXRvBUqiNdOjRfeg",
-  authDomain: "onegominsushi.firebaseapp.com",
-  projectId: "onegominsushi",
-  storageBucket: "onegominsushi.firebasestorage.app",
-  messagingSenderId: "602248758411",
-  appId: "1:602248758411:web:7a64976c5fb5bb0088c08e",
+  authDomain: "gomination-670fd.firebaseapp.com",
+  projectId: "gomination-670fd",
+  storageBucket: "gomination-670fd.firebasestorage.app",
+  messagingSenderId: "160751898514",
+  appId: "1:160751898514:web:49e535605e12e559a0fb4b"
 });
 
 const messaging = firebase.messaging();
