@@ -7,7 +7,6 @@ importScripts(
 
 // Firebase 초기화
 firebase.initializeApp({
-  apiKey: "AIzaSyA9el-mfOMSicZC-vCFqmkLRa05IjsBdok",
   authDomain: "gomination-670fd.firebaseapp.com",
   projectId: "gomination-670fd",
   storageBucket: "gomination-670fd.firebasestorage.app",
